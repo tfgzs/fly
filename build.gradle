@@ -1,0 +1,142 @@
+//构建脚本自身配置依赖
+buildscript {
+    ext {
+        springBootVersion = '1.4.0.RELEASE'
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "http://repo.spring.io/snapshot" }
+        maven { url "http://repo.spring.io/milestone" }
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('se.transmode.gradle:gradle-docker:1.2')
+        classpath('net.researchgate:gradle-release:2.3.4')
+        classpath "com.netflix.nebula:nebula-publishing-plugin:4.9.1"
+    }
+}
+//所有项目（包括父项目）的共同设置
+allprojects {
+    apply plugin: 'idea'
+}
+//所有子项目共有的配置
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+    apply plugin: 'spring-boot'
+    apply plugin: 'docker'
+    apply plugin: 'net.researchgate.release'
+    apply plugin: "nebula.maven-publish"
+
+    group 'net.tfgzs'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    [compileJava, compileTestJava, compileGroovy, compileTestGroovy]*.options*.encoding = 'UTF-8'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url 'http://maven.oschina.net/content/groups/public/' }
+        maven { url "http://repo.spring.io/snapshot" }
+        maven { url "http://repo.spring.io/milestone" }
+        maven { url "http://repo.maven.apache.org/maven2" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+    }
+
+    dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.3.11'
+        compile('org.springframework.boot:spring-boot-starter-jetty')
+        compile('org.springframework.boot:spring-boot-starter-actuator')
+        compile('org.springframework.boot:spring-boot-starter-data-jpa')
+        compile('org.springframework.boot:spring-boot-starter-web') {
+            exclude module: 'spring-boot-starter-tomcat'
+        }
+        compile("org.jadira.usertype:usertype.core:4.0.0.GA") {
+            exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+        }
+        compile 'joda-time:joda-time:2.9.4'
+        compile("joda-time:joda-time-hibernate:1.4") {
+            exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+            exclude group: 'joda-time', module: 'joda-time'
+        }
+        compile('org.codehaus.janino:janino:2.7.8')
+        compile('net.dongliu:requests:4.4.0')
+        runtime("mysql:mysql-connector-java:5.1.25")
+
+        //日志工具
+        compile('net.logstash.logback:logstash-logback-encoder:4.5.1')
+        //logback
+        compile('ch.qos.logback.contrib:logback-jackson:0.1.5')
+        compile('ch.qos.logback.contrib:logback-json-classic:0.1.5')
+        //aop
+        compile 'cglib:cglib:3.2.4'
+        //采集工具
+        compile group: 'org.jsoup', name: 'jsoup', version: '1.8.3'
+        //json
+        compile 'org.nutz:nutz:1.r.57.r3'
+        compile group: 'com.alibaba', name: 'fastjson', version: '1.2.6'
+        compile "com.fasterxml.jackson.core:jackson-databind:2.6.3"
+        compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:2.6.3"
+        compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.3"
+        //时间工具
+        compile group: 'org.ocpsoft.prettytime', name: 'prettytime', version: '3.2.3.Final'
+        //集合工具
+        compile group: 'com.google.guava', name: 'guava', version: '15.0'
+        //cli
+        compile 'commons-cli:commons-cli:1.3.1'
+        //缓存工具
+        compile group: 'net.sf.ehcache', name: 'ehcache', version: '2.8.3'
+        //报表工具
+        compile group: 'org.apache.poi', name: 'poi', version: '3.9'
+        compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.9'
+        compile group: 'jfree', name: 'jfreechart', version: '1.0.13'
+        compile group: 'jexcelapi', name: 'jxl', version: '2.4.2'
+        //其他工具
+        compile group: 'commons-io', name: 'commons-io', version: '2.4'
+        compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.1'
+        compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.3.2'
+        compile group: 'commons-collections', name: 'commons-collections', version: '3.2.1'
+        compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.2'
+        compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+        compile group: 'commons-codec', name: 'commons-codec', version: '1.7'
+        compile group: 'org.apache.commons', name: 'commons-compress', version: '1.6'
+
+        testCompile(
+                'org.springframework.boot:spring-boot-starter-test'
+        )
+    }
+    task wrapper(type: Wrapper) {
+        gradleVersion = '2.13'
+    }
+    task buildDocker(type: Docker, dependsOn: build) {
+        push = false
+        applicationName = jar.baseName
+        dockerfile = file('src/main/docker/Dockerfile')
+
+        doFirst {
+            copy {
+                from(jar) {
+                    include "*${version}.jar"
+                    rename "(.*)-${version}(.*)", 'app.jar'
+                }
+                into stageDir
+            }
+        }
+    }
+
+    release {
+        git {
+            requireBranch = 'develop'
+            pushToRemote = 'origin'
+            pushToBranchPrefix = ''
+        }
+    }
+    afterReleaseBuild.dependsOn buildDocker
+}
+

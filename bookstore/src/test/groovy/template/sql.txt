@@ -1,0 +1,14 @@
+select
+
+    select      *
+    from        tb
+    where       ddddd
+    group by    aaa
+    order by    abc desc
+
+insert
+
+update
+
+delete
+

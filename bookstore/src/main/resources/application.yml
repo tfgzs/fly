@@ -1,0 +1,153 @@
+
+server.port: 8080
+server.ssl.enabled: false
+server.ssl.key-store: classpath:keystore.jks
+server.ssl.key-store-password: changeit
+
+
+yintai:
+  connection:
+    defaultConnectionTimeout: 5000
+    defaultSoTimeout: 10000
+    maxPerRoute: 100
+    maxTotalConnection: 1000
+    defaultConnectionRequestTimeout: 1000
+  proxy:
+    url:
+      userService: http://localhost:9999
+
+spring.profiles.active: development
+
+#spring boot admin 健康监控
+#spring.application.name: BookStore
+#spring.boot.admin.url: http://localhost:${server.port}
+#endpoints.health.sensitive: false
+#spring.jackson.serialization.indent_output: true
+
+---
+spring:
+  profiles: testing
+  logging.logstash.destination: changeme
+
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3309/fly?useUnicode=true&amp;charaterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: root
+    jmxEnabled: true
+    initialSize: 5
+    maxActive: 50
+    minIdle: 5
+    maxIdle: 25
+    maxWait: 10000
+    timeBetweenEvictionRunsMillis: 5000
+    minEvictableIdleTimeMillis: 60000
+    validationQuery: "SELECT 1"
+    validationQueryTimeout: 3
+    validationInterval: 15000
+    testOnBorrow: true
+    testWhileIdle: true
+    testOnReturn: false
+    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+    defaultTransactionIsolation: 2 #java.sql.Connection.TRANSACTION_READ_COMMITTED
+  jpa:
+#    database: tfgzs
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      sql-format: true
+      jadira:
+        usertype:
+          autoRegisterUserTypes: true
+          databaseZone: UTC
+          javaZone: UTC
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
+
+---
+spring:
+  profiles: development
+  logging.logstash.destination: changeme
+
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3309/fly?useUnicode=true&amp;charaterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: root
+    jmxEnabled: true
+    initialSize: 5
+    maxActive: 50
+    minIdle: 5
+    maxIdle: 25
+    maxWait: 10000
+    timeBetweenEvictionRunsMillis: 5000
+    minEvictableIdleTimeMillis: 60000
+    validationQuery: "SELECT 1"
+    validationQueryTimeout: 3
+    validationInterval: 15000
+    testOnBorrow: true
+    testWhileIdle: true
+    testOnReturn: false
+    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+    defaultTransactionIsolation: 2 #java.sql.Connection.TRANSACTION_READ_COMMITTED
+  jpa:
+#    database: tfgzs
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      sql-format: true
+      jadira:
+        usertype:
+          autoRegisterUserTypes: true
+          databaseZone: UTC
+          javaZone: UTC
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
+
+---
+spring:
+  profiles: production
+  logging.logstash.destination: changeme
+
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3309/fly?useUnicode=true&amp;charaterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: root
+    jmxEnabled: true
+    initialSize: 5
+    maxActive: 50
+    minIdle: 5
+    maxIdle: 25
+    maxWait: 10000
+    timeBetweenEvictionRunsMillis: 5000
+    minEvictableIdleTimeMillis: 60000
+    validationQuery: "SELECT 1"
+    validationQueryTimeout: 3
+    validationInterval: 15000
+    testOnBorrow: true
+    testWhileIdle: true
+    testOnReturn: false
+    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+    defaultTransactionIsolation: 2 #java.sql.Connection.TRANSACTION_READ_COMMITTED
+  jpa:
+#    database: tfgzs
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      jadira:
+        usertype:
+          autoRegisterUserTypes: true
+          databaseZone: UTC
+          javaZone: UTC
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false

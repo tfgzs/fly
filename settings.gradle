@@ -1,0 +1,8 @@
+rootProject.name = 'fly'
+
+include 'common'
+include 'bbs'
+include 'blog'
+include 'passport'
+include 'bookstore'
+

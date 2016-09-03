@@ -30,7 +30,7 @@ subprojects {
     apply plugin: 'net.researchgate.release'
     apply plugin: "nebula.maven-publish"
 
-    group 'net.tfgzs'
+    group 'net.tfgzs.fly'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
